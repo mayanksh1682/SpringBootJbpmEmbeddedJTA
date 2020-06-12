@@ -17,50 +17,12 @@
 	http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
 	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.2.xsd">
 
-	<context:component-scan base-package="com" />
 
-
-	<tx:annotation-driven
-		transaction-manager="sampleTransactionManager" />
-	<tx:annotation-driven proxy-target-class="true" />
-
-	<context:property-placeholder
-		location="classpath*:application.properties" />
-
-	<!-- EntityManager Access -->
-
-	<bean id="jdbcTemplate"
-		class="org.springframework.jdbc.core.JdbcTemplate">
-		<property name="dataSource" ref="dataSource" />
-	</bean>
-
-
-	<bean id="sampleEntityManagerFactoryBean"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="persistenceXmlLocation"
-			value="classpath*:jbpm-persistence-JPA2.xml" />
-		<property name="jpaDialect">
-			<bean
-				class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
-		</property>
-		<property name="jpaVendorAdapter">
-			<bean
-				class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
-		</property>
-		<property name="jpaProperties">
-			<props>
-				<prop key="hibernate.show_sql">true</prop>
-			</props>
-		</property>
-	</bean>
-
-	<bean id="jpaDialect"
-		class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
 
 	<bean id="narayanaUserTransaction"
 		factory-method="userTransaction"
 		class="com.arjuna.ats.jta.UserTransaction" />
+		
 	<bean id="narayanaTransactionManager"
 		factory-method="transactionManager"
 		class="com.arjuna.ats.jta.TransactionManager" />
@@ -80,25 +42,6 @@
 			ref="sampleEntityManagerFactoryBean" />
 	</bean>
 
-
-	<bean id="genericDao" class="com.sample.dao.impl.GenericDaoImpl" />
-
-	<bean id="dataSource"
-		class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName"
-			value="${dataSource.driverClassName}" />
-		<property name="url" value="${dataSource.url}" />
-		<property name="username" value="${dataSource.username}" />
-		<property name="password" value="${dataSource.password}" />
-		<property name="initialSize" value="35" />
-		<property name="maxActive" value="40" />
-		<property name="validationQuery" value="select 1" />
-		<property name="testOnBorrow" value="true" />
-		<property name="testOnReturn" value="true" />
-		<property name="testWhileIdle" value="true" />
-		<property name="poolPreparedStatements" value="true" />
-		<property name="defaultAutoCommit" value="true" />
-	</bean>
 
 </beans>
 
