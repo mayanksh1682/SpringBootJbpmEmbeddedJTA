@@ -1,0 +1,7 @@
+git init
+git config --global user.email "mayanksh@gmail.com"
+git add .
+git commit -m "Jbpm Embedded Spring Boot"
+
+git remote add origin https://github.com/mayanksh1682/SpringBootJbpmEmbedded.git
+ git push -u  origin master

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/util 
+	http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+
+	<bean
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+	<bean id="makerSubmittedCheckerWorkflow4"
+		factory-method="newClassPathResource"
+		class="org.kie.internal.io.ResourceFactory">
+		<constructor-arg>
+			<value>com/sample/MakerChecker-4.bpmn2</value>
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="runtimeEnvironment"
+		class="org.kie.spring.factorybeans.RuntimeEnvironmentFactoryBean">
+		<property name="type" value="DEFAULT" />
+		<property name="entityManagerFactory"
+			ref="sampleEntityManagerFactoryBean" />
+		<property name="transactionManager"
+			ref="sampleTransactionManager" />
+		<property name="assets">
+			<map>
+				<entry key-ref="makerSubmittedCheckerWorkflow4">
+					<util:constant
+						static-field="org.kie.api.io.ResourceType.BPMN2" />
+				</entry>
+			</map>
+		</property>
+		<property name="userInfo" ref="jbpmUserInfo" />
+		<property name="taskService" ref="taskService" />
+	</bean>
+
+	<bean id="runtimeManager"
+		class="org.kie.spring.factorybeans.RuntimeManagerFactoryBean"
+		destroy-method="close">
+		<property name="identifier" value="jbpmXmlTest" />
+		<property name="runtimeEnvironment" ref="runtimeEnvironment" />
+	</bean>
+
+
+	<bean id="taskService"
+		class="org.kie.spring.factorybeans.TaskServiceFactoryBean"
+		destroy-method="close">
+		<property name="entityManagerFactory"
+			ref="sampleEntityManagerFactoryBean" />
+		<property name="transactionManager"
+			ref="sampleTransactionManager" />
+		<property name="entityManager" ref="sampleEntityManager" />
+		<property name="userGroupCallback"
+			ref="jbpmUserGroupCallback" />
+		<property name="userInfo" ref="jbpmUserInfo" />
+		<property name="listeners">
+			<list>
+				<bean
+					class="org.jbpm.services.task.audit.JPATaskLifeCycleEventListener">
+					<constructor-arg value="true" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="jbpmUserInfo"
+		class="com.sample.jbpm.CustomLDAPUserInfoImpl">
+		<constructor-arg>
+			<value>true</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="jbpmUserGroupCallback"
+		class="com.sample.jbpm.UserGroupCallbackImpl">
+		<constructor-arg>
+			<value>true</value>
+		</constructor-arg>
+		<property name="userGrpMapStr"
+			value="mayank:maker-group,parul:checker-group" />
+	</bean>
+
+	<bean id="logService"
+		class="org.jbpm.process.audit.JPAAuditLogService"
+		depends-on="runtimeEnvironment">
+		<constructor-arg
+			value="#{runtimeEnvironment.environment}" />
+		<constructor-arg
+			value="STANDALONE_JTA_SPRING_SHARED_EM" />
+	</bean>
+
+
+</beans>
